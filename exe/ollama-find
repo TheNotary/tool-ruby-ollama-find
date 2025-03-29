@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require "ollama-find"
+
+arg0 = ARGV.count > 0 ? ARGV[0].chomp.strip : ''
+arg1 = ARGV.count > 1 ? ARGV[1].chomp.strip : nil
+
+if ARGV.count == 0 || arg0 == "help" || arg0 == "--help" || arg0 == "-h"
+  puts Ollama::Find.help
+  return
+end
+
+model_name = arg0
+model_tag = arg1
+
+# Check if model_tag is specified in first argument via ':' symbol
+if arg0.include?(":")
+  model_name = arg0.split(":")[0]
+  model_tag = arg0.split(":")[1]
+end
+
+# if no model_tag, default to latest
+model_tag = 'latest' if model_tag.nil?
+
+puts Ollama::Find.main(model_name, model_tag)
