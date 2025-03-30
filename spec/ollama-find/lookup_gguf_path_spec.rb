@@ -63,7 +63,7 @@ describe Ollama::Find do
 
     it "lets you know when it can't parse a mangled manifest from ollama" do
       model_name = 'mangled-model'
-      expected_error = "Error: Unable to parse manifest at /Users/john/.ollama/models/manifests/registry.ollama.ai/library/mangled-model/latest"
+      expected_error = "Error: Unable to parse manifest at ~/.ollama/models/manifests/registry.ollama.ai/library/mangled-model/latest"
       test_manifest = File.read("./spec/data/ollama_manifest_mangled.json")
       allow(Ollama::Find).to receive(:file_missing?).and_return(false)
       allow(Ollama::Find).to receive(:read_manifest).and_return(test_manifest)
@@ -75,7 +75,7 @@ describe Ollama::Find do
 
     it "lets you know when it can't navigate the schema of ollama's manifest" do
       model_name = 'mangled-model'
-      expected_error = "Error: Unable to extract digest from manifest at /Users/john/.ollama/models/manifests/registry.ollama.ai/library/mangled-model/latest for model_name mangled-model"
+      expected_error = "Error: Unable to extract digest from manifest at ~/.ollama/models/manifests/registry.ollama.ai/library/mangled-model/latest for model_name mangled-model"
       test_manifest = File.read("./spec/data/ollama_manifest_missing_keys.json")
       allow(Ollama::Find).to receive(:file_missing?).and_return(false)
       allow(Ollama::Find).to receive(:read_manifest).and_return(test_manifest)

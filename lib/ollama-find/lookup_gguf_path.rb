@@ -33,13 +33,13 @@ module Ollama
       begin
         manifest = JSON.parse(read_manifest(path_to_manifest))
       rescue JSON::ParserError
-        return "Error: Unable to parse manifest at #{path_to_manifest}"
+        return "Error: Unable to parse manifest at #{clean_path(path_to_manifest)}"
       end
 
       begin
         digest = extract_model_digest(manifest)
       rescue
-        return "Error: Unable to extract digest from manifest at #{path_to_manifest} for model_name #{model_name}"
+        return "Error: Unable to extract digest from manifest at #{clean_path(path_to_manifest)} for model_name #{model_name}"
       end
 
       File.join(CLEAN_MODEL_DIR, "blobs", digest)
