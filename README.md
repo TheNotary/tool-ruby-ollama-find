@@ -3,7 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/ollama-find.svg?icon=si%3Arubygems)](https://badge.fury.io/rb/ollama-find)
 [![Tests](https://github.com/TheNotary/tool-ruby-ollama-find/actions/workflows/test.yml/badge.svg)](https://github.com/TheNotary/tool-ruby-ollama-find/actions/workflows/test.yml)
 
-This is a CLI tool that allows you to quickly generate a path to a `.gguf` file that's been pulled via Ollama.
+This is a CLI tool that allows you to quickly generate a path to a `.gguf` file that's been pulled via Ollama.  Also see [tool-go-ollama-find](https://github.com/TheNotary/tool-go-ollama-find) for the go version.
 
 
 ## Installation
