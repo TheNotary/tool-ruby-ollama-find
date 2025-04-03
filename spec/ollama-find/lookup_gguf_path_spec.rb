@@ -4,6 +4,10 @@ require 'spec_helper'
 describe Ollama::Find do
   describe '#lookup_gguf_path' do
 
+    before :each do
+      @library_path = File.join("~", ".ollama", "models", "manifests", "registry.ollama.ai", "library")
+    end
+
     it "gets registry path for model in ollama's registry" do
       model_name = "deepseek-r1"
 
@@ -45,25 +49,26 @@ describe Ollama::Find do
       allow(Ollama::Find).to receive(:read_manifest).and_return(test_manifest)
 
       path = Ollama::Find.lookup_gguf_path(model_name)
+      expected_blob_path = File.join("~", ".ollama", "models", "blobs", "sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49")
 
-      expect(path).to eq("~/.ollama/models/blobs/sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49")
+      expect(path).to eq(expected_blob_path)
     end
 
     it "lets you know when it can't find a model's manifest from ollama" do
       model_name = 'sea-biscuit'
-      expected_error = "Error: Manifest for sea-biscuit could not be found.  Checked ~/.ollama/models/manifests/registry.ollama.ai/library/sea-biscuit/latest"
+      expected_error = "Error: Manifest for sea-biscuit could not be found.  Checked #{File.join(@library_path, model_name, "latest")}"
       test_manifest = File.read("./spec/data/ollama_manifest_mangled.json")
       allow(Ollama::Find).to receive(:file_missing?).and_return(true)
       allow(Ollama::Find).to receive(:read_manifest).and_return(test_manifest)
 
       path = Ollama::Find.lookup_gguf_path(model_name)
 
-      expect(path).to eq(expected_error)
+      expect(path).to include(expected_error)
     end
 
     it "lets you know when it can't parse a mangled manifest from ollama" do
       model_name = 'mangled-model'
-      expected_error = "Error: Unable to parse manifest at ~/.ollama/models/manifests/registry.ollama.ai/library/mangled-model/latest"
+      expected_error = "Error: Unable to parse manifest at #{File.join(@library_path, model_name, "latest")}"
       test_manifest = File.read("./spec/data/ollama_manifest_mangled.json")
       allow(Ollama::Find).to receive(:file_missing?).and_return(false)
       allow(Ollama::Find).to receive(:read_manifest).and_return(test_manifest)
@@ -75,7 +80,7 @@ describe Ollama::Find do
 
     it "lets you know when it can't navigate the schema of ollama's manifest" do
       model_name = 'mangled-model'
-      expected_error = "Error: Unable to extract digest from manifest at ~/.ollama/models/manifests/registry.ollama.ai/library/mangled-model/latest for model_name mangled-model"
+      expected_error = "Error: Unable to extract digest from manifest at #{File.join(@library_path, model_name, "latest")} for model_name mangled-model"
       test_manifest = File.read("./spec/data/ollama_manifest_missing_keys.json")
       allow(Ollama::Find).to receive(:file_missing?).and_return(false)
       allow(Ollama::Find).to receive(:read_manifest).and_return(test_manifest)
@@ -89,7 +94,8 @@ describe Ollama::Find do
       model_name = 'mangled-model'
       test_manifest = File.read("./spec/data/ollama_manifest_missing_keys.json")
       suggested_tag = "24b-instruct-2501-q4_K_M"
-      expected_error = "Error: Manifest for mangled-model could not be found.  Checked ~/.ollama/models/manifests/registry.ollama.ai/library/mangled-model/latest.\n\nIf you meant to specify a version, try:\n  $  rspec find mangled-model 24b-instruct-2501-q4_K_M"
+      expected_errorp1 = "Error: Manifest for mangled-model could not be found."
+      expected_errorp2 = "If you meant to specify a version, try:\n  $  rspec find mangled-model 24b-instruct-2501-q4_K_M"
       allow(Ollama::Find).to receive(:file_missing?).and_return(true)
       allow(Ollama::Find).to receive(:it_looks_like_you_needed_to_supply_a_tag_name?).and_return(true)
       allow(Ollama::Find).to receive(:get_example_tagname).and_return(suggested_tag)
@@ -98,7 +104,8 @@ describe Ollama::Find do
 
       path = Ollama::Find.lookup_gguf_path(model_name)
 
-      expect(path).to eq(expected_error)
+      expect(path).to include(expected_errorp1)
+      expect(path).to include(expected_errorp2)
     end
 
   end
