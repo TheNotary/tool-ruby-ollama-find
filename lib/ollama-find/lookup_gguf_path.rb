@@ -4,7 +4,7 @@ require 'json'
 
 module Ollama
   module Find
-    CLEAN_MODEL_DIR = "~/.ollama/models"
+    CLEAN_MODEL_DIR = File.join("~", ".ollama", "models")
     MODEL_DIR = File.expand_path(CLEAN_MODEL_DIR)
 
     # Retrieves the file path to the GGUF model based on a given model name and optional tag.
@@ -42,6 +42,7 @@ module Ollama
         return "Error: Unable to extract digest from manifest at #{clean_path(path_to_manifest)} for model_name #{model_name}"
       end
 
+      return File.join(MODEL_DIR, "blobs", digest) if Gem.win_platform?
       File.join(CLEAN_MODEL_DIR, "blobs", digest)
     end
 
@@ -59,6 +60,7 @@ module Ollama
     end
 
     def self.clean_path(absolute_path)
+      return absolute_path if Gem.win_platform? 
       absolute_path.sub(MODEL_DIR, CLEAN_MODEL_DIR)
     end
 
@@ -74,9 +76,9 @@ module Ollama
       end
       if model_name.split("/").count > 1
         subcatalog = model_name.split("/").first
-        return ["registry.ollama.ai/#{subcatalog}", model_name.sub("#{subcatalog}/", "")]
+        return [File.join("registry.ollama.ai", subcatalog), model_name.sub("#{subcatalog}/", "")]
       end
-      ["registry.ollama.ai/library", model_name]
+      [File.join("registry.ollama.ai", "library"), model_name]
     end
 
     def self.get_private_registry_model_name_and_registry(model_name)
